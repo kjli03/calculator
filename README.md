@@ -1,3 +1,3 @@
 # calculator
 
-An on-screen calculator
+An on-screen calculator! To do: make less ugly
