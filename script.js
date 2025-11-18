@@ -9,10 +9,34 @@ const operatorButtons = document.querySelectorAll(".operator-button");
 const numberButtons = document.querySelectorAll(".number-button");
 const equalButton = document.querySelector("#equal-button");
 const clearButton = document.querySelector("#clear-button");
+const backspaceButton = document.querySelector('#backspace-button');
 const display = document.querySelector('#display');
+
+backspaceButton.addEventListener('click', () => {
+    if (secondNum) {
+        num2 = String(num2).slice(0, String(num2).length - 1);
+    }
+    else {
+        num1 = String(num1).slice(0, String(num1).textContent.length - 1);
+    }
+        display.textContent = display.textContent.slice(0, display.textContent.length- 1);
+    console.log(display.textContent)
+
+})
 
 numberButtons.forEach((button) => {
     button.addEventListener('click', () => {
+        if (lastButton == "=") {
+            clear();
+        }
+        if (button.textContent == "." && !display.textContent.includes(".")) {
+            lastButton = button.textContent;
+            displayInput(button.textContent)
+            return;
+        }
+        else if (button.textContent == ".") {
+            display.textContent -= display.textContent.slice(0, display.textContent.length);
+        }
         if (secondNum == true || lastButton == "+" || lastButton == "-" || lastButton == "*" || lastButton == "/") {
             secondNum = true;
             parseSecondNum(button.textContent);
@@ -36,6 +60,15 @@ operatorButtons.forEach((button) => {
         if (lastButton == "+" || lastButton == "-" || lastButton == "*" || lastButton == "/") {
             display.textContent = display.textContent.slice(0, display.textContent.length - 1); // slice last button, aka repeat operator
         }
+        // evaluate expression on screen
+        if (display.textContent.includes("+") || display.textContent.includes("*") || display.textContent.includes("-") || display.textContent.includes("/")) {
+            let answer = operate(operator, Number(num1), Number(num2));
+            document.querySelector('#display').textContent = answer;
+            secondNum = false;
+            num1 = answer;
+            num2 = 0;
+            operator = "";
+        }
         operator = button.textContent;
         lastButton = button.textContent;
         displayInput(button.textContent)
@@ -44,27 +77,17 @@ operatorButtons.forEach((button) => {
         console.log("NUM1: " + num1);
     })
 });
+
 // event listener for equal button
 document.querySelector('#equal-button').addEventListener('click', event => {
     let answer = operate(operator, Number(num1), Number(num2));
     document.querySelector('#display').textContent = answer;
-
-    console.log("num1: " + num1);
-    console.log("num2: " + num2);
-    console.log("operator: " + operator);
+    secondNum = false;
     num1 = answer;
     num2 = 0;
     operator = "";
+    lastButton = "=";
 })
-
-
-// document.querySelector('#operator-container').addEventListener('click', event => {
-//     let target = event.target;
-//     operator = target.textContent;
-//     num1 = parseInt(display.textContent);
-//     console.log(num1);
-//     secondNum = true;
-// })
 
 // on clear, make second num false;
 document.querySelector('#clear-button').addEventListener('click', event => {
@@ -89,9 +112,6 @@ function multiply(num1, num2) {
 }
 
 function divide(num1, num2) {
-    if (num2 === 0) {
-        alert("nice try!!"); // handle dividing by 0
-    }
     return num1 / num2;
 }
 
@@ -104,7 +124,13 @@ function operate(operator, num1, num2) {
         case '*':
             return multiply(num1, num2);
         case '/':
-            return divide(num1, num2);
+            if (num2 == 0) {
+                alert("nice try!!"); // handle dividing by 0
+                clear();
+            }
+            else {
+                return divide(num1, num2);
+            }
     }
 }
 
